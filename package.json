@@ -1,0 +1,47 @@
+{
+  "name": "tara-erc20",
+  "version": "1.0.0",
+  "description": "Tara ERC20 Contract",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "coverage": "truffle run coverage --file='./test/*.js'",
+    "test": "truffle test",
+    "compile": "truffle compile",
+    "migrate": "truffle migrate",
+    "console": "truffle console",
+    "testrpc": "ganache-cli",
+    "release": "truffle migrate --network mainnet"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Taraxa-project/tara-erc20.git"
+  },
+  "keywords": [
+    "TARA",
+    "ERC20",
+    "Ethereum",
+    "Token"
+  ],
+  "author": "Ian Patton <ian.patton@taraxa.io>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Taraxa-project/tara-erc20/issues"
+  },
+  "homepage": "https://github.com/Taraxa-project/tara-erc20#readme",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^3.3.0",
+    "bn-chai": "^1.0.1",
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eth-gas-reporter": "^0.2.18",
+    "ganache-cli": "^6.12.0",
+    "solidity-coverage": "^0.7.9",
+    "truffle": "^5.1.50",
+    "truffle-flattener": "1.5.0",
+    "@truffle/hdwallet-provider": "^1.0.36",
+    "web3": "^1.3.0"
+  }
+}
