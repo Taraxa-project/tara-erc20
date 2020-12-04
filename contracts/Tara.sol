@@ -5,7 +5,7 @@ pragma solidity >=0.6.0 <0.8.0;
 import "@openzeppelin/contracts/presets/ERC20PresetMinterPauser.sol";
 
 contract Tara is ERC20PresetMinterPauser {
-    constructor(uint256 initialSupply) public ERC20PresetMinterPauser("Taraxa Coin", "TARA") {
+    constructor(uint256 initialSupply) ERC20PresetMinterPauser("Taraxa Coin", "TARA") {
         _mint(msg.sender, initialSupply);
     }
 
@@ -14,20 +14,17 @@ contract Tara is ERC20PresetMinterPauser {
     /// @param bits array of uint
     /// @return true/false
     function multiTransfer(
-        uint256 amountIn,
         uint256[] calldata bits
     ) external returns (bool) {
-        require(amountIn != 0, "Input amount invalid");
-        require(this.balanceOf(msg.sender) >= amountIn, "Insufficient balance");
-
         uint256 totalOut = 0;
 
+        // calculate total out
         for (uint256 i = 0; i < bits.length; i++) {
             uint256 amount = bits[i] & ((1 << 96) - 1);
             totalOut += amount;
         }
 
-        require(amountIn == totalOut, "Output amt must equal input amt");
+        require(this.balanceOf(msg.sender) >= totalOut, "Insufficient balance");
 
         // output amount to recipients
         for (uint256 i = 0; i < bits.length; i++) {
