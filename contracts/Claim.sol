@@ -23,7 +23,17 @@ contract Claim {
         return claimed[_address];
     }
 
-    function claim(address _address, uint _value, uint8 _v, bytes32 _r, bytes32 _s) public {
+    function claim(address _address, uint _value, bytes memory _sig) public {
+        bytes32 _r;
+        bytes32 _s;
+        uint8 _v;
+
+        assembly {
+            _r := mload(add(_sig, 32))
+            _s := mload(add(_sig, 64))
+            _v := byte(0, mload(add(_sig, 96)))
+        }
+
         require(ecrecover(keccak256(abi.encodePacked(_address, _value)), _v, _r, _s) == trustedAccountAddress, "Claim: Invalid signature");
         require(claimed[_address] == 0, "Claim: Already claimed");
 

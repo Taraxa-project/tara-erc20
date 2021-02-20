@@ -34,13 +34,10 @@ contract("Claim", function (accounts) {
       [clientAddress, balance]
     );
 
-    let message = ethUtil.ecsign(encoded, privateKey);
+    let { v, r, s } = ethUtil.ecsign(encoded, privateKey);
+    let hash = ethUtil.toRpcSig(v, r, s);
 
-    const v = ethUtil.bufferToHex(message.v),
-      r = ethUtil.bufferToHex(message.r),
-      s = ethUtil.bufferToHex(message.s);
-
-    await this.contract.claim(clientAddress, balance, v, r, s);
+    await this.contract.claim(clientAddress, balance, hash);
 
     const newBalance = await this.token.balanceOf(clientAddress);
     newBalance
@@ -54,14 +51,11 @@ contract("Claim", function (accounts) {
       [clientAddress, balance - 1]
     );
 
-    let message = ethUtil.ecsign(encoded, privateKey);
-
-    const v = ethUtil.bufferToHex(message.v),
-      r = ethUtil.bufferToHex(message.r),
-      s = ethUtil.bufferToHex(message.s);
+    let { v, r, s } = ethUtil.ecsign(encoded, privateKey);
+    let hash = ethUtil.toRpcSig(v, r, s);
 
     await truffleAssert.reverts(
-      this.contract.claim(clientAddress, balance, v, r, s),
+      this.contract.claim(clientAddress, balance, hash),
       "Claim: Invalid signature"
     );
   });
@@ -72,15 +66,12 @@ contract("Claim", function (accounts) {
       [clientAddress, balance]
     );
 
-    let message = ethUtil.ecsign(encoded, privateKey);
+    let { v, r, s } = ethUtil.ecsign(encoded, privateKey);
+    let hash = ethUtil.toRpcSig(v, r, s);
 
-    const v = ethUtil.bufferToHex(message.v),
-      r = ethUtil.bufferToHex(message.r),
-      s = ethUtil.bufferToHex(message.s);
-
-    this.contract.claim(clientAddress, balance, v, r, s);
+    this.contract.claim(clientAddress, balance, hash);
     await truffleAssert.reverts(
-      this.contract.claim(clientAddress, balance, v, r, s),
+      this.contract.claim(clientAddress, balance, hash),
       "Claim: Already claimed"
     );
   });
@@ -96,13 +87,11 @@ contract("Claim", function (accounts) {
       [clientAddress, balance]
     );
 
-    let message = ethUtil.ecsign(encoded, privateKey);
 
-    const v = ethUtil.bufferToHex(message.v),
-      r = ethUtil.bufferToHex(message.r),
-      s = ethUtil.bufferToHex(message.s);
+    let { v, r, s } = ethUtil.ecsign(encoded, privateKey);
+    let hash = ethUtil.toRpcSig(v, r, s);
 
-    this.contract.claim(clientAddress, balance, v, r, s);
+    this.contract.claim(clientAddress, balance, hash);
 
     const newBalance = await this.contract.getClaimedAmount(clientAddress);
     newBalance
