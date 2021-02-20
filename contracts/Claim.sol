@@ -2,6 +2,7 @@
 pragma solidity >=0.6.0 <0.8.0;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/cryptography/ECDSA.sol";
 import "./Tara.sol";
 
 contract Claim {
@@ -27,19 +28,9 @@ contract Claim {
     }
 
     function claim(address _address, uint256 _value, uint256 _nonce, bytes memory _sig) public {
-        bytes32 _r;
-        bytes32 _s;
-        uint8 _v;
-
-        assembly {
-            _r := mload(add(_sig, 32))
-            _s := mload(add(_sig, 64))
-            _v := byte(0, mload(add(_sig, 96)))
-        }
-
         bytes32 _hash = keccak256(abi.encodePacked(_address, _value, _nonce));
 
-        require(ecrecover(_hash, _v, _r, _s) == trustedAccountAddress, "Claim: Invalid signature");
+        require(ECDSA.recover(_hash, _sig) == trustedAccountAddress, "Claim: Invalid signature");
         require(!used[_hash], "Claim: Already claimed");
 
         used[_hash] = true;
