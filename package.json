@@ -27,6 +27,8 @@
     "console": "truffle console",
     "release": "truffle migrate --network mainnet",
     "test": "truffle test",
+    "clean": "rm -rf build/contracts",
+    "abi": "yarn clean && yarn compile && ./gen-abi.sh Tara Claim",
     "coverage": "truffle run coverage --file='./test/*.js'",
     "testrpc": "ganache-cli -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d"
   },
