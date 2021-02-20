@@ -28,7 +28,7 @@ contract("Claim", function (accounts) {
     await this.token.approve(this.contract.address, balance);
   });
 
-  it("Should transfer tokens if the signature is valid", async function () {
+  it("transfers tokens if the signature is valid", async function () {
     var encoded = abi.soliditySHA3(
       ["address", "uint"],
       [clientAddress, balance]
@@ -48,7 +48,7 @@ contract("Claim", function (accounts) {
       .should.be.equal(balance, "The balance should be " + balance);
   });
 
-  it("Shouldn't transfer tokens if the signature is invalid", async function () {
+  it("doesn't transfer tokens if the signature is invalid", async function () {
     var encoded = abi.soliditySHA3(
       ["address", "uint"],
       [clientAddress, balance - 1]
@@ -62,11 +62,11 @@ contract("Claim", function (accounts) {
 
     await truffleAssert.reverts(
       this.contract.claim(clientAddress, balance, v, r, s),
-      "Invalid signature"
+      "Claim: Invalid signature"
     );
   });
 
-  it("Shouldn't transfer tokens if already claimed", async function () {
+  it("doesn't transfer tokens if already claimed", async function () {
     var encoded = abi.soliditySHA3(
       ["address", "uint"],
       [clientAddress, balance]
@@ -81,11 +81,11 @@ contract("Claim", function (accounts) {
     this.contract.claim(clientAddress, balance, v, r, s);
     await truffleAssert.reverts(
       this.contract.claim(clientAddress, balance, v, r, s),
-      "Already claimed"
+      "Claim: Already claimed"
     );
   });
 
-  it("Should be able to check claimed ammount", async function () {
+  it("is able to check claimed amount", async function () {
     const initialBalance = await this.contract.getClaimedAmount(clientAddress);
     initialBalance
       .toNumber()

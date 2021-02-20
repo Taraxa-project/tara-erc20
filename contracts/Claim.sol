@@ -24,8 +24,8 @@ contract Claim {
     }
 
     function claim(address _address, uint _value, uint8 _v, bytes32 _r, bytes32 _s) public {
-        require(ecrecover(keccak256(abi.encodePacked(_address, _value)), _v, _r, _s) == trustedAccountAddress, "Invalid signature");
-        require(claimed[_address] == 0, "Already claimed");
+        require(ecrecover(keccak256(abi.encodePacked(_address, _value)), _v, _r, _s) == trustedAccountAddress, "Claim: Invalid signature");
+        require(claimed[_address] == 0, "Claim: Already claimed");
 
         claimed[_address] = _value;
         token.transferFrom(walletAddress, _address, _value);
