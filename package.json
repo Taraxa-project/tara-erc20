@@ -2,6 +2,7 @@
   "name": "tara-erc20",
   "version": "1.0.0",
   "description": "Tara ERC20 Contract",
+  "homepage": "https://github.com/Taraxa-project/tara-erc20#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Taraxa-project/tara-erc20.git"
@@ -32,7 +33,6 @@
     "coverage": "truffle run coverage --file='./test/*.js'",
     "testrpc": "ganache-cli -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d"
   },
-  "homepage": "https://github.com/Taraxa-project/tara-erc20#readme",
   "devDependencies": {
     "@openzeppelin/contracts": "3.4.0-solc-0.7",
     "@truffle/hdwallet-provider": "^1.0.36",
