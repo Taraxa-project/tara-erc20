@@ -5,7 +5,7 @@ module.exports = async (deployer, network, accounts) => {
   const walletAddress = accounts[0],
     trustedAddress = accounts[1];
 
-  await deployer.deploy(Tara);
+  await deployer.deploy(Tara, 1000000000);
   let token = await Tara.deployed();
   let balance = await token.balanceOf(walletAddress);
 

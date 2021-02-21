@@ -20,7 +20,7 @@ contract("Claim", function (accounts) {
     nonce = 333;
 
   beforeEach(async function () {
-    this.token = await Tara.new({ from: walletAddress });
+    this.token = await Tara.new(1000000000, { from: walletAddress });
     this.contract = await Claim.new(
       this.token.address,
       trustedAddress,
