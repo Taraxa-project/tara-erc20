@@ -30,8 +30,8 @@ contract Claim {
         uint256 _value,
         uint256 _nonce
     ) public view returns (uint256) {
-        bytes32 _hash = keccak256(abi.encodePacked(_address, _value, _nonce));
-        return claimed[_hash];
+        bytes32 hash = _hash(_address, _value, _nonce);
+        return claimed[hash];
     }
 
     function claim(
@@ -40,14 +40,22 @@ contract Claim {
         uint256 _nonce,
         bytes memory _sig
     ) public {
-        bytes32 _hash = keccak256(abi.encodePacked(_address, _value, _nonce));
+        bytes32 hash = _hash(_address, _value, _nonce);
 
-        require(ECDSA.recover(_hash, _sig) == trustedAccountAddress, 'Claim: Invalid signature');
-        require(claimed[_hash] == 0, 'Claim: Already claimed');
+        require(ECDSA.recover(hash, _sig) == trustedAccountAddress, 'Claim: Invalid signature');
+        require(claimed[hash] == 0, 'Claim: Already claimed');
 
-        claimed[_hash] = _value;
+        claimed[hash] = _value;
         token.transferFrom(walletAddress, _address, _value);
 
         emit Claimed(_address, _nonce, _value);
+    }
+
+    function _hash(
+        address _address,
+        uint256 _value,
+        uint256 _nonce
+    ) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked(_address, _value, _nonce));
     }
 }
