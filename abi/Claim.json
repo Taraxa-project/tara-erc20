@@ -30,6 +30,12 @@
         "type": "address"
       },
       {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "_nonce",
+        "type": "uint256"
+      },
+      {
         "indexed": false,
         "internalType": "uint256",
         "name": "_value",
@@ -45,6 +51,16 @@
         "internalType": "address",
         "name": "_address",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_nonce",
+        "type": "uint256"
       }
     ],
     "name": "getClaimedAmount",
@@ -71,19 +87,14 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint8",
-        "name": "_v",
-        "type": "uint8"
+        "internalType": "uint256",
+        "name": "_nonce",
+        "type": "uint256"
       },
       {
-        "internalType": "bytes32",
-        "name": "_r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_s",
-        "type": "bytes32"
+        "internalType": "bytes",
+        "name": "_sig",
+        "type": "bytes"
       }
     ],
     "name": "claim",
