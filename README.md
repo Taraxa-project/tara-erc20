@@ -27,6 +27,6 @@ The Claim Contract is used to distribute tokens from public sales and bounties. 
 
 ### Contract Details
 
-The signature contains the address of the participant, the number of tokens and a nonce. The contracts uses `ecrecover` to verify that the signature was signed by our trusted account.
+The signature contains the address of the participant, the number of tokens and a nonce. The contract uses `ecrecover` to verify that the signature was created by our trusted account.
 
 If the signature is valid, the contract will transfer the tokens from a Taraxa owned wallet to the participant.

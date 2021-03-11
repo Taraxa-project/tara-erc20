@@ -1,12 +1,25 @@
 // SPDX-License-Identifier: UNLICENSED
+
 pragma solidity >=0.6.0 <0.8.0;
 
 import '@openzeppelin/contracts/cryptography/ECDSA.sol';
 import './Tara.sol';
 
+/**
+ * @dev Taraxa Claim Contract
+ *
+ * The Claim Contract is used to distribute tokens from public sales and bounties.
+ *
+ * The signature contains the address of the participant, the number of tokens and
+ * a nonce.
+ *
+ * The contract uses ecrecover to verify that the signature was created by our
+ * trusted account.
+ *
+ * If the signature is valid, the contract will transfer the tokens from a Taraxa
+ * owned wallet to the participant.
+ */
 contract Claim {
-    event Claimed(address indexed _address, uint256 indexed _nonce, uint256 _value);
-
     Tara token;
 
     address trustedAccountAddress;
@@ -14,6 +27,13 @@ contract Claim {
 
     mapping(bytes32 => uint256) claimed;
 
+    /**
+     * @dev Sets the values for {token}, {trustedAccountAddress} and
+     * {walletAddress}.
+     *
+     * All three of these values are immutable: they can only be set once during
+     * construction.
+     */
     constructor(
         address _tokenAddress,
         address _trustedAccountAddress,
@@ -25,6 +45,12 @@ contract Claim {
         walletAddress = _walletAddress;
     }
 
+    /**
+     * @dev Returns the number of tokens that have been claimed by the
+     * participant.
+     *
+     * Used by the Claim UI app.
+     */
     function getClaimedAmount(
         address _address,
         uint256 _value,
@@ -34,6 +60,11 @@ contract Claim {
         return claimed[hash];
     }
 
+    /**
+     * @dev Transfers the tokens from a Taraxa owned wallet to the participant.
+     *
+     * Emits a {Claimed} event.
+     */
     function claim(
         address _address,
         uint256 _value,
@@ -58,4 +89,9 @@ contract Claim {
     ) internal pure returns (bytes32) {
         return keccak256(abi.encodePacked(_address, _value, _nonce));
     }
+
+    /**
+     * @dev Emitted after the tokens have been transfered to the participant.
+     */
+    event Claimed(address indexed _address, uint256 indexed _nonce, uint256 _value);
 }
