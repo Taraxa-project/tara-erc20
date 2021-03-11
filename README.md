@@ -1,13 +1,32 @@
-# TARA ERC20 Contract
+# Taraxa Contracts
 
-The TARA ERC20 token is a temporary token on the Ethereum network that will be used to track distribution of real TARA tokens on the Taraxa network in the genesis block.
+This repository contains two contracts:
 
-When the Taraxa mainnet goes live based on this genesis block, the ERC20 contract will be paused, and TARA ERC20 token will no longer be useable.
+- TARA ERC20 Contract
+- Taraxa Claim Contract
+
+## TARA ERC20 Contract
+
+The TARA ERC20 token is a temporary token on the Ethereum network.
+
+When the Taraxa mainnet goes live, this ERC20 contract will be paused and the balances will be transferred to the Taraxa chain.
 
 ### Contract Details
 
-The ERC20 contract is the Open Zeppelin [ERC20PresetMinterPauser](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.3.0/contracts/presets/ERC20PresetMinterPauser.sol) with an additional multiTransfer() function based on on Bloq's [MultiTransfer](https://github.com/bloq/sol-mass-payouts/blob/v0.2.0/contracts/MultiTransfer.sol) contract.
-
 - Name: Taraxa Coin
-- symbol: TARA
-- decimals: 18
+- Symbol: TARA
+- Decimals: 18
+
+The ERC20 contract uses the OpenZeppelin [ERC20PresetMinterPauser](https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v3.4-solc-0.7/contracts/presets/ERC20PresetMinterPauser.sol) contract.
+
+OpenZeppelin contracts are community audited and considered to be safe.
+
+## Taraxa Claim Contract
+
+The Claim Contract is used to distribute tokens from public sales and bounties. Participants will be able to iteract with this contract via the [Taraxa Claim](https://claim.taraxa.io/) app.
+
+### Contract Details
+
+The signature contains the address of the participant, the number of tokens and a nonce. The contracts uses `ecrecover` to verify that the signature was signed by our trusted account.
+
+If the signature is valid, the contract will transfer the tokens from a Taraxa owned wallet to the participant.
