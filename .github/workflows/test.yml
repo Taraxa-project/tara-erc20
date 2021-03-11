@@ -26,10 +26,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: rm -f truffle-config.js
     - run: cp -v truffle-config-ci.js truffle-config.js
-    - run: yarn add global ganache-cli truffle
     - run: yarn install
     - run: cp -v .env.example .env
-    - run: $(yarn global bin)/ganache-cli &
+    - run: yarn testrpc &
     - run: yarn test
       env:
         CI: true
