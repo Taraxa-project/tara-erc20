@@ -2,8 +2,8 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
+import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/cryptography/ECDSA.sol';
-import './Tara.sol';
 
 /**
  * @dev Taraxa Claim Contract
@@ -20,7 +20,7 @@ import './Tara.sol';
  * owned wallet to the participant.
  */
 contract Claim {
-    Tara token;
+    IERC20 token;
 
     address trustedAccountAddress;
     address walletAddress;
@@ -39,7 +39,7 @@ contract Claim {
         address _trustedAccountAddress,
         address _walletAddress
     ) {
-        token = Tara(_tokenAddress);
+        token = IERC20(_tokenAddress);
 
         trustedAccountAddress = _trustedAccountAddress;
         walletAddress = _walletAddress;
