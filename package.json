@@ -31,6 +31,7 @@
     "clean": "rm -rf build/contracts",
     "abi": "yarn clean && yarn compile && ./gen-abi.sh Tara Claim",
     "format": "prettier --write contracts/**/*.sol",
+    "flatten-claim": "truffle-flattener contracts/Claim.sol > Claim_flat.sol",
     "flatten": "truffle-flattener contracts/Tara.sol > Tara_flat.sol",
     "coverage": "truffle run coverage --file='./test/*.js'",
     "testrpc": "ganache-cli -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d"
