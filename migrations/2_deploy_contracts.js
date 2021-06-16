@@ -1,6 +1,7 @@
 const Tara = artifacts.require('./Tara.sol');
 const Claim = artifacts.require('./Claim.sol');
 const Multisend = artifacts.require('./Multisend.sol');
+const Staking = artifacts.require('./Staking.sol');
 
 module.exports = async (deployer, network, accounts) => {
   const walletAddress = accounts[0],
@@ -16,5 +17,7 @@ module.exports = async (deployer, network, accounts) => {
   await token.approve(claim.address, balance);
 
   await deployer.deploy(Multisend);
-
+  
+  await deployer.deploy(Staking, token.address);
+  await Staking.deployed();
 };
