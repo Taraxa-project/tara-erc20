@@ -1,4 +1,5 @@
 const Staking = artifacts.require('./Staking.sol'),
+  StakingProxy = artifacts.require('./StakingProxy.sol'),
   Tara = artifacts.require('./Tara.sol'),
   BigNumber = web3.BigNumber,
   truffleAssert = require('truffle-assertions');
@@ -6,18 +7,32 @@ const Staking = artifacts.require('./Staking.sol'),
 require('chai').use(require('chai-as-promised')).use(require('chai-bignumber')(BigNumber)).should();
 
 contract('Staking', (accounts) => {
-  const ownerAddress = accounts[0],
-    otherAddress = accounts[1],
-    userAddress = accounts[2];
+  const adminAddress = accounts[0],
+    ownerAddress = accounts[1],
+    otherAddress = accounts[2],
+    userAddress = accounts[3];
 
   beforeEach(async () => {
-    this.token = await Tara.new(1000000000);
-    this.contract = await Staking.new(this.token.address);
+    this.token = await Tara.new(1000000000, { from: ownerAddress });
+    const staking = await Staking.new({ from: ownerAddress });
+    await staking.initialize(this.token.address);
+
+    let proxy;
+    let isProxyDeployed = await StakingProxy.isDeployed();
+    if (isProxyDeployed) {
+      proxy = await StakingProxy.deployed();
+      await proxy.upgradeTo(staking.address, { from: adminAddress });
+    } else {
+      await deployer.deploy(StakingProxy, staking.address, adminAddress, '0x');
+      proxy = await StakingProxy.deployed();
+    }
+
+    this.contract = await Staking.at(proxy.address);
   });
 
   describe('Anyone', async () => {
     it('has a default locking period of 30 days', async () => {
-      const lockingPeriod = await this.contract.lockingPeriod();
+      const lockingPeriod = await this.contract.lockingPeriod({ from: ownerAddress });
       lockingPeriod
         .toNumber()
         .should.be.equal(30 * 24 * 60 * 60, 'The default locking period is incorrect');
@@ -30,8 +45,8 @@ contract('Staking', (accounts) => {
       const tx = await this.contract.stake(numberOfTokens, { from: userAddress });
       const block = await web3.eth.getBlock(tx.receipt.blockNumber);
 
-      const lockingPeriod = await this.contract.lockingPeriod();
-      const stake = await this.contract.stakeOf(userAddress);
+      const lockingPeriod = await this.contract.lockingPeriod({ from: ownerAddress });
+      const stake = await this.contract.stakeOf(userAddress, { from: ownerAddress });
       stake.amount.toNumber().should.be.equal(numberOfTokens, 'The stake amount is incorrect');
       stake.startTime.toNumber().should.be.equal(block.timestamp, 'The start time is incorrect');
       stake.endTime
@@ -46,7 +61,7 @@ contract('Staking', (accounts) => {
 
       await this.contract.setLockingPeriod(newLockingPeriod, { from: ownerAddress });
 
-      const lockingPeriod = await this.contract.lockingPeriod();
+      const lockingPeriod = await this.contract.lockingPeriod({ from: ownerAddress });
       lockingPeriod
         .toNumber()
         .should.be.equal(newLockingPeriod, 'The new locking period is incorrect');
@@ -67,7 +82,7 @@ contract('Staking', (accounts) => {
 
       await this.contract.stake(numberOfTokens, { from: userAddress });
 
-      const stake = await this.contract.stakeOf(userAddress);
+      const stake = await this.contract.stakeOf(userAddress, { from: ownerAddress });
       stake.amount.toNumber().should.be.equal(numberOfTokens, 'The stake amount is incorrect');
     });
     it('fails if stake is called with zero amount', async () => {
@@ -92,7 +107,7 @@ contract('Staking', (accounts) => {
       await this.contract.stake(numberOfTokens, { from: userAddress });
       await this.contract.stake(numberOfTokens, { from: userAddress });
 
-      const stake = await this.contract.stakeOf(userAddress);
+      const stake = await this.contract.stakeOf(userAddress, { from: ownerAddress });
       stake.amount.toNumber().should.be.equal(numberOfTokens * 3, 'The stake amount is incorrect');
     });
     it('can unstake previously staked tokens', async () => {
@@ -113,10 +128,10 @@ contract('Staking', (accounts) => {
 
       await this.contract.unstake({ from: userAddress });
 
-      // const finalBalance = await this.token.balanceOf(userAddress);
-      // finalBalance
-      //   .toNumber()
-      //   .should.be.equal(numberOfTokens, 'The final token balance is incorrect');
+      const finalBalance = await this.token.balanceOf(userAddress);
+      finalBalance
+        .toNumber()
+        .should.be.equal(numberOfTokens, 'The final token balance is incorrect');
     });
     it('fails if you want to unstake an inexisting stake', async () => {
       await truffleAssert.reverts(

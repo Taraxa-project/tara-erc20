@@ -2,6 +2,7 @@
 
 pragma solidity >=0.6.0 <0.8.0;
 
+import '@openzeppelin/contracts/proxy/Initializable.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/math/SafeMath.sol';
@@ -16,11 +17,13 @@ import '@openzeppelin/contracts/math/SafeMath.sol';
  * this contract emits.
  */
 
-contract Staking is Ownable {
+contract Staking is Initializable {
+    address private _owner;
+
     using SafeMath for uint256;
 
     IERC20 token;
-    uint256 public lockingPeriod = 30 days;
+    uint256 public lockingPeriod;
 
     struct Stake {
         uint256 amount;
@@ -35,7 +38,10 @@ contract Staking is Ownable {
      * The token is immutable. It can only be set once during
      * construction.
      */
-    constructor(address _tokenAddress) {
+    function initialize(address _tokenAddress) public initializer {
+        _owner = msg.sender;
+
+        lockingPeriod = 30 days;
         token = IERC20(_tokenAddress);
     }
 
@@ -67,26 +73,26 @@ contract Staking is Ownable {
     function stake(uint256 _amount) public {
         require(_amount > 0, 'Staking: Amount cannot be zero');
 
-        require(token.transferFrom(_msgSender(), address(this), _amount));
+        require(token.transferFrom(msg.sender, address(this), _amount));
 
         uint256 startTime = block.timestamp;
         uint256 endTime = block.timestamp.add(lockingPeriod);
 
-        Stake storage currentStake = stakes[_msgSender()];
+        Stake storage currentStake = stakes[msg.sender];
         if (currentStake.startTime > 0) {
             currentStake.amount = currentStake.amount.add(_amount);
             currentStake.endTime = endTime;
             startTime = currentStake.startTime;
         } else {
             Stake memory newStake = Stake(_amount, startTime, endTime);
-            stakes[_msgSender()] = newStake;
+            stakes[msg.sender] = newStake;
         }
 
-        emit Deposited(_msgSender(), _amount, startTime, endTime);
+        emit Deposited(msg.sender, _amount, startTime, endTime);
     }
 
     function unstake() public {
-        Stake storage currentStake = stakes[_msgSender()];
+        Stake storage currentStake = stakes[msg.sender];
         require(currentStake.amount > 0, 'Staking: No stake to withdraw');
         require(
             block.timestamp >= currentStake.endTime,
@@ -96,8 +102,16 @@ contract Staking is Ownable {
         uint256 amount = currentStake.amount;
         currentStake.amount = 0;
 
-        require(token.transfer(_msgSender(), amount));
-        emit Withdrawn(_msgSender(), currentStake.amount);
+        require(token.transfer(msg.sender, amount));
+        emit Withdrawn(msg.sender, currentStake.amount);
+    }
+
+    /**
+     * @dev Throws if called by any account other than the owner.
+     */
+    modifier onlyOwner() {
+        require(_owner == msg.sender, 'Ownable: caller is not the owner');
+        _;
     }
 
     event Deposited(address indexed user, uint256 amount, uint256 startTime, uint256 endTime);
