@@ -1,4 +1,6 @@
 const Staking = artifacts.require('./Staking.sol'),
+  StakingProxyAdmin = artifacts.require('./StakingProxyAdmin.sol'),
+  StakingProxy = artifacts.require('./StakingProxy.sol'),
   Tara = artifacts.require('./Tara.sol'),
   BigNumber = web3.BigNumber,
   truffleAssert = require('truffle-assertions');
@@ -10,9 +12,15 @@ contract('Staking', (accounts) => {
     otherAddress = accounts[1],
     userAddress = accounts[2];
 
+  before(async () => {
+    this.proxyAdmin = await StakingProxyAdmin.new();
+  });
   beforeEach(async () => {
+    this.logic = await Staking.new();
     this.token = await Tara.new(1000000000);
-    this.contract = await Staking.new(this.token.address);
+    this.proxy = await StakingProxy.new(this.logic.address, this.proxyAdmin.address, '0x');
+    this.contract = await Staking.at(this.proxy.address);
+    await this.contract.initialize(this.token.address);
   });
 
   describe('Anyone', async () => {
@@ -54,6 +62,19 @@ contract('Staking', (accounts) => {
     it("doesn't change the locking period if not owner", async () => {
       await truffleAssert.reverts(
         this.contract.setLockingPeriod(1, { from: otherAddress }),
+        'Staking: caller is not the owner'
+      );
+    });
+    it('upgrades contract logic if owner', async () => {
+      const newLogic = await Staking.new();
+      await this.proxyAdmin.upgrade(this.proxy.address, newLogic.address);
+      const currentLogicAddress = await this.proxyAdmin.getProxyImplementation(this.proxy.address);
+      currentLogicAddress.should.be.equal(newLogic.address, 'The new logic was not set');
+    });
+    it("doesn't upgrades contract logic if not owner", async () => {
+      const newLogic = await Staking.new();
+      await truffleAssert.reverts(
+        this.proxyAdmin.upgrade(this.proxy.address, newLogic.address, { from: otherAddress }),
         'Ownable: caller is not the owner'
       );
     });
@@ -113,10 +134,10 @@ contract('Staking', (accounts) => {
 
       await this.contract.unstake({ from: userAddress });
 
-      // const finalBalance = await this.token.balanceOf(userAddress);
-      // finalBalance
-      //   .toNumber()
-      //   .should.be.equal(numberOfTokens, 'The final token balance is incorrect');
+      const finalBalance = await this.token.balanceOf(userAddress);
+      finalBalance
+        .toNumber()
+        .should.be.equal(numberOfTokens, 'The final token balance is incorrect');
     });
     it('fails if you want to unstake an inexisting stake', async () => {
       await truffleAssert.reverts(
