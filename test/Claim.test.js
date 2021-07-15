@@ -170,7 +170,7 @@ contract("Claim", function (accounts) {
     const { v, r, s } = ethUtil.ecsign(encoded, privateKey);
     const hash = ethUtil.toRpcSig(v, r, s);
 
-    this.contract.claim(clientAddress, balance, nonce, hash);
+    await this.contract.claim(clientAddress, balance, nonce, hash);
 
     const newBalance = await this.contract.getClaimedAmount(clientAddress, balance, nonce);
     newBalance
