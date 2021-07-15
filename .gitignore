@@ -7,3 +7,6 @@ yarn-error.log
 Tara_flat.sol
 Claim_flat.sol
 Multisend_flat.sol
+Staking_flat.sol
+StakingProxy_flat.sol
+StakingProxyAdmin_flat.sol
