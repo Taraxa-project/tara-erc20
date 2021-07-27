@@ -50,6 +50,7 @@ contract Staking is Initializable {
     function setLockingPeriod(uint256 _lockingPeriod) public {
         require(owner == msg.sender, 'Staking: caller is not the owner');
         lockingPeriod = _lockingPeriod;
+        emit ChangedLockingPeriod(lockingPeriod);
     }
 
     /**
@@ -105,6 +106,7 @@ contract Staking is Initializable {
         emit Withdrawn(msg.sender, currentStake.amount);
     }
 
+    event ChangedLockingPeriod(uint256 lockingPeriod);
     event Deposited(address indexed user, uint256 amount, uint256 startTime, uint256 endTime);
     event Withdrawn(address indexed user, uint256 amount);
 }

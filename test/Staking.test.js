@@ -52,12 +52,18 @@ contract('Staking', (accounts) => {
     it('changes the locking period if owner', async () => {
       const newLockingPeriod = 15 * 24 * 60 * 60;
 
-      await this.contract.setLockingPeriod(newLockingPeriod, { from: ownerAddress });
+      const result = await this.contract.setLockingPeriod(newLockingPeriod, { from: ownerAddress });
 
       const lockingPeriod = await this.contract.lockingPeriod();
       lockingPeriod
         .toNumber()
         .should.be.equal(newLockingPeriod, 'The new locking period is incorrect');
+
+      truffleAssert.eventEmitted(
+        result,
+        'ChangedLockingPeriod',
+        (ev) => ev.lockingPeriod.toNumber() === newLockingPeriod
+      );
     });
     it("doesn't change the locking period if not owner", async () => {
       await truffleAssert.reverts(
