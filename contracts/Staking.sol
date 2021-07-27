@@ -73,8 +73,6 @@ contract Staking is Initializable {
     function stake(uint256 _amount) external {
         require(_amount > 0, 'Staking: Amount cannot be zero');
 
-        require(token.transferFrom(msg.sender, address(this), _amount));
-
         uint256 startTime = block.timestamp;
         uint256 endTime = block.timestamp.add(lockingPeriod);
 
@@ -89,6 +87,8 @@ contract Staking is Initializable {
         }
 
         emit Deposited(msg.sender, _amount, startTime, endTime);
+
+        require(token.transferFrom(msg.sender, address(this), _amount));
     }
 
     function unstake() external {
