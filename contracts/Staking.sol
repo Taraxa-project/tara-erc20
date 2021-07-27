@@ -36,7 +36,7 @@ contract Staking is Initializable {
      * The token is immutable. It can only be set once during
      * initialization.
      */
-    function initialize(address _tokenAddress) public initializer {
+    function initialize(address _tokenAddress) external initializer {
         require(_tokenAddress != address(0), 'Staking: tokenAddress is a zero address');
         owner = msg.sender;
         token = IERC20(_tokenAddress);
@@ -47,7 +47,7 @@ contract Staking is Initializable {
      * @dev Sets how long it takes until a users can withdraw
      * their tokens
      */
-    function setLockingPeriod(uint256 _lockingPeriod) public {
+    function setLockingPeriod(uint256 _lockingPeriod) external {
         require(owner == msg.sender, 'Staking: caller is not the owner');
         lockingPeriod = _lockingPeriod;
         emit ChangedLockingPeriod(lockingPeriod);
@@ -70,7 +70,7 @@ contract Staking is Initializable {
         return (s.amount, s.startTime, s.endTime);
     }
 
-    function stake(uint256 _amount) public {
+    function stake(uint256 _amount) external {
         require(_amount > 0, 'Staking: Amount cannot be zero');
 
         require(token.transferFrom(msg.sender, address(this), _amount));
@@ -91,7 +91,7 @@ contract Staking is Initializable {
         emit Deposited(msg.sender, _amount, startTime, endTime);
     }
 
-    function unstake() public {
+    function unstake() external {
         Stake storage currentStake = stakes[msg.sender];
         require(currentStake.amount > 0, 'Staking: No stake to withdraw');
         require(
