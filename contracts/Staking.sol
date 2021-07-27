@@ -102,8 +102,9 @@ contract Staking is Initializable {
         uint256 amount = currentStake.amount;
         currentStake.amount = 0;
 
+        emit Withdrawn(msg.sender, amount);
+
         require(token.transfer(msg.sender, amount));
-        emit Withdrawn(msg.sender, currentStake.amount);
     }
 
     event ChangedLockingPeriod(uint256 lockingPeriod);

@@ -138,12 +138,18 @@ contract('Staking', (accounts) => {
       const lockingPeriod = await this.contract.lockingPeriod();
       await advanceBlockAtTime(stakeBlock.timestamp + lockingPeriod.toNumber());
 
-      await this.contract.unstake({ from: userAddress });
+      const result = await this.contract.unstake({ from: userAddress });
 
       const finalBalance = await this.token.balanceOf(userAddress);
       finalBalance
         .toNumber()
         .should.be.equal(numberOfTokens, 'The final token balance is incorrect');
+
+      truffleAssert.eventEmitted(
+        result,
+        'Withdrawn',
+        (ev) => ev.amount.toNumber() === numberOfTokens && ev.user === userAddress
+      );
     });
     it('fails if you want to unstake an inexisting stake', async () => {
       await truffleAssert.reverts(
