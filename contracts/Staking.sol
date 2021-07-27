@@ -31,12 +31,13 @@ contract Staking is Initializable {
     mapping(address => Stake) private stakes;
 
     /**
-     * @dev Sets the value for {token}
+     * @dev Sets the value for {token} and default values
      *
      * The token is immutable. It can only be set once during
      * initialization.
      */
     function initialize(address _tokenAddress) public initializer {
+        require(_tokenAddress != address(0), 'Staking: tokenAddress is a zero address');
         owner = msg.sender;
         token = IERC20(_tokenAddress);
         lockingPeriod = 30 days;
