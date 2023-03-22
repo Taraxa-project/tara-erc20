@@ -32,8 +32,6 @@ contract('Multisend', () => {
     for (let i = 0; i < 10; i++) {
       const recipient = recipients[i];
       const balance = await this.token.balanceOf(recipient);
-      console.log('balance: ', balance.toString());
-      console.log('balanceCheck: ', web3.utils.toBN(`${123 + i}`).toString());
       balance
         .toString()
         .should.be.bignumber.equal(
@@ -41,8 +39,6 @@ contract('Multisend', () => {
           `Wrong recipient balace - : ${web3.utils.toBN(`${123 + i}`).toString()}`
         );
     }
-
-    console.log(`Total: ${total}`);
 
     const event = tx.logs.find((log) => log.event === 'TokensSent');
     assert.exists(event, 'TokensSent event not found');
