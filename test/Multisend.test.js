@@ -75,7 +75,7 @@ contract('Multisend', () => {
 
     await expectRevert(
       this.contract.multisendToken(this.token.address, recipients, amounts),
-      'Multisend: contributors and balances have different sizes.'
+      'VM Exception while processing transaction: revert Multisend: contributors and balances have different sizes'
     );
   });
 });
