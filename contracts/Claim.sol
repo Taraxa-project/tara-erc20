@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-
-pragma solidity >=0.6.0 <0.8.0;
+pragma solidity 0.8.18;
 
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/cryptography/ECDSA.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 /**
  * @dev Taraxa Claim Contract

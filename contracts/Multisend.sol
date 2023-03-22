@@ -1,8 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-
-pragma solidity >=0.6.0 <0.8.0;
-
-import '@openzeppelin/contracts/math/SafeMath.sol';
+pragma solidity 0.8.18;
 
 /**
  * @title ERC20Basic
@@ -39,8 +36,6 @@ abstract contract ERC20 is ERC20Basic {
  * The Multisend Contract is used to do multiple ERC20 token transfers in the same transaction
  */
 contract Multisend {
-    using SafeMath for uint256;
-
     /**
      * @dev Transfers the tokens from a Taraxa owned wallet to the participant.
      *
@@ -62,7 +57,7 @@ contract Multisend {
         uint8 i = 0;
         for (i; i < _recipients.length; i++) {
             erc20token.transferFrom(msg.sender, _recipients[i], _amounts[i]);
-            total = total.add(_amounts[i]);
+            total = total + _amounts[i];
         }
         emit TokensSent(total, token);
     }

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.18;
 
-pragma solidity >=0.6.0 <0.8.0;
-
-import '@openzeppelin/contracts/cryptography/ECDSA.sol';
+import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 /**
  * @dev Taraxa Claim Contract Native Version

@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.18;
 
-pragma solidity 0.7.6;
-
-import '@openzeppelin/contracts/proxy/ProxyAdmin.sol';
+import '@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol';
 
 contract StakingProxyAdmin is ProxyAdmin {
     constructor() ProxyAdmin() {}

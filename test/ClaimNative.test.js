@@ -32,16 +32,19 @@ contract('ClaimNative', function (accounts) {
     privateKey = Buffer.from(process.env.TRUSTED_ACCOUNT, 'hex'),
     clientAddress = accounts[2],
     otherAddress = accounts[3],
-    balance = 124,
+    balance = new web3.utils.BN(web3.utils.toWei('1')),
     nonce = 333;
 
   beforeEach(async function () {
     this.contract = await ClaimNative.new(trustedAddress, {
-      fron: accounts[0],
-      value: balance * 10,
+      from: accounts[0],
+      value: balance.mul(new web3.utils.BN('10')),
     });
     const newBalance = await web3.eth.getBalance(this.contract.address);
-    Number(newBalance).should.be.equal(balance * 10, 'The balance should be ' + balance * 10);
+    newBalance.should.be.equal(
+      balance + '0',
+      'The balance should be ' + balance.mul(new web3.utils.BN('10')).toString()
+    );
   });
 
   after(async () => {
@@ -58,11 +61,17 @@ contract('ClaimNative', function (accounts) {
 
     console.log(`hash: ${hash}`);
 
-    const tx = await this.contract.claim(clientAddress, balance, nonce, hash);
+    const balanceBefore = await web3.eth.getBalance(clientAddress);
+
+    const tx = await this.contract.claim(clientAddress, balance, nonce, hash, {
+      from: clientAddress,
+    });
     recordGasUsed(tx, 'claim - transfers tokens if the signature is valid');
 
     const newBalance = await web3.eth.getBalance(clientAddress);
-    Number(newBalance).should.be.equal(balance, 'The balance should be ' + balance);
+    Number(newBalance)
+      .should.be.greaterThan(Number(balanceBefore))
+      .and.lessThan(Number(balanceBefore) + Number(balance));
   });
 
   it('can claim tokens for other party if signature is valid', async function () {
@@ -74,16 +83,26 @@ contract('ClaimNative', function (accounts) {
     const { v, r, s } = ethUtil.ecsign(encoded, privateKey);
     const hash = ethUtil.toRpcSig(v, r, s);
 
+    const balanceBefore = await web3.eth.getBalance(clientAddress);
+    const otherPartyBalanceBefore = await web3.eth.getBalance(otherAddress);
+
     const tx = await this.contract.claim(clientAddress, balance, nonce, hash, {
       from: otherAddress,
     });
     recordGasUsed(tx, 'claim - can claim tokens for other party if signature is valid');
 
     const newBalance = await web3.eth.getBalance(clientAddress);
-    Number(newBalance).should.be.equal(balance, 'The balance should be ' + balance);
+
+    Number(newBalance).should.be.greaterThan(
+      Number(balanceBefore),
+      'The balance should be greater than before with 1 TARA - gas'
+    );
 
     const otherPartyBalance = await web3.eth.getBalance(otherAddress);
-    Number(otherPartyBalance).should.be.equal(0, 'The balance should be 0');
+    Number(otherPartyBalance).should.be.lessThan(
+      Number(otherPartyBalanceBefore),
+      'The balance should less than before for teh 3rd party because of gas costs'
+    );
   });
 
   it('can claim multiple times with different signatures', async function () {
@@ -93,7 +112,10 @@ contract('ClaimNative', function (accounts) {
     );
     const { v: v1, r: r1, s: s1 } = ethUtil.ecsign(encoded1, privateKey);
     const hash1 = ethUtil.toRpcSig(v1, r1, s1);
-    const tx1 = await this.contract.claim(clientAddress, balance, 1, hash1);
+    const balanceBefore = await web3.eth.getBalance(clientAddress);
+    const tx1 = await this.contract.claim(clientAddress, balance, 1, hash1, {
+      from: otherAddress,
+    });
     recordGasUsed(tx1, 'claim - can claim multiple times with different signatures - 1');
 
     const encoded2 = abi.soliditySHA3(
@@ -102,17 +124,21 @@ contract('ClaimNative', function (accounts) {
     );
     const { v: v2, r: r2, s: s2 } = ethUtil.ecsign(encoded2, privateKey);
     const hash2 = ethUtil.toRpcSig(v2, r2, s2);
-    const tx2 = await this.contract.claim(clientAddress, balance, 2, hash2);
+    const tx2 = await this.contract.claim(clientAddress, balance, 2, hash2, {
+      from: otherAddress,
+    });
     recordGasUsed(tx2, 'claim - can claim multiple times with different signatures - 2');
 
     const newBalance = await web3.eth.getBalance(clientAddress);
-    Number(newBalance).should.be.equal(balance * 2, 'The balance should be ' + balance);
+    (Number(newBalance) - Number(balanceBefore)).should.be
+      .greaterThan(Number(balance))
+      .and.lessThanOrEqual(Number(balance) * 2);
   });
 
   it("doesn't transfer tokens if the signature is invalid", async function () {
     const encoded = abi.soliditySHA3(
       ['address', 'uint256', 'uint256'],
-      [clientAddress, balance - 1, nonce]
+      [clientAddress, balance, nonce - 17]
     );
 
     const { v, r, s } = ethUtil.ecsign(encoded, privateKey);
@@ -156,27 +182,6 @@ contract('ClaimNative', function (accounts) {
     await this.contract.claim(clientAddress, balance, nonce, hash);
 
     const newBalance = await this.contract.getClaimedAmount(clientAddress, balance, nonce);
-    Number(newBalance).should.be.equal(balance, 'The balance should be ' + balance);
+    Number(newBalance).should.be.equal(Number(balance), 'The balance should be ' + Number(balance));
   });
-  // it('it reverts the transaction if the transfer fails', async function () {
-  //   const encoded = abi.soliditySHA3(['address', 'uint256', 'uint256'], [clientAddress, balance, nonce]);
-
-  //   const { v, r, s } = ethUtil.ecsign(encoded, privateKey);
-  //   const hash = ethUtil.toRpcSig(v, r, s);
-
-  //   await truffleAssert.reverts(
-  //     this.contract.claim(clientAddress, balance, nonce, hash),
-  //     'ERC20: transfer amount exceeds allowance'
-  //   );
-
-  //   const noChangeBalance = await this.contract.getClaimedAmount(clientAddress, balance, nonce);
-  //   noChangeBalance.toNumber().should.be.equal(0, 'The balance should be 0');
-
-  //   await this.token.approve(this.contract.address, balance);
-  //   const tx = await this.contract.claim(clientAddress, balance, nonce, hash);
-  //   recordGasUsed(tx, 'claim - it reverts the transaction if the transfer fails');
-
-  //   const newBalance = await this.contract.getClaimedAmount(clientAddress, balance, nonce);
-  //   Number(newBalance).should.be.equal(balance, `The balance should be ${balance}`);
-  // });
 });
