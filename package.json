@@ -27,7 +27,8 @@
     "migrate": "truffle migrate",
     "console": "truffle console",
     "release": "truffle migrate --network mainnet",
-    "test": "truffle test",
+    "test-eth": "truffle test test/Claim.test.js test/Multisend.test.js test/Staking.test.js",
+    "test-native": "truffle test ./test/ClaimNative.test.js",
     "clean": "rm -rf build/contracts",
     "abi": "yarn clean && yarn compile && ./gen-abi.sh Tara Claim Multisend Staking StakingProxy StakingProxyAdmin",
     "format": "prettier --write contracts/**/*.sol",
@@ -38,7 +39,8 @@
     "flatten-staking-proxy-admin": "truffle-flattener contracts/StakingProxyAdmin.sol > StakingProxyAdmin_flat.sol",
     "flatten": "truffle-flattener contracts/Tara.sol > Tara_flat.sol",
     "coverage": "truffle run coverage --file='./test/*.js'",
-    "testrpc": "ganache-cli --fork https://rpc.devnet.taraxa.io --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100"
+    "testrpc-eth": "ganache-cli --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843",
+    "testrpc-taraxa": "ganache-cli --fork https://rpc.devnet.taraxa.io --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843"
   },
   "dependencies": {
     "@openzeppelin/contracts": "4.8.2",

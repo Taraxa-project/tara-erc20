@@ -26,7 +26,11 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: yarn install
     - run: cp -v .env.example .env
-    - run: yarn testrpc &
+    - run: yarn testrpc-eth &
     - run: yarn test
+      env:
+        CI: true
+    - run: yarn testrpc-taraxa &
+    - run: yarn test-native
       env:
         CI: true
