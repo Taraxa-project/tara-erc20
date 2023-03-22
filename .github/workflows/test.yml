@@ -27,7 +27,7 @@ jobs:
     - run: yarn install
     - run: cp -v .env.example .env
     - run: yarn testrpc-eth &
-    - run: yarn test
+    - run: yarn test-eth
       env:
         CI: true
     - run: yarn testrpc-taraxa &
