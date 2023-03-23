@@ -28,7 +28,7 @@
     "console": "truffle console",
     "release": "truffle migrate --network mainnet",
     "test-eth": "truffle test test/Claim.test.js test/Multisend.test.js test/Staking.test.js",
-    "test-native": "truffle test ./test/ClaimNative.test.js",
+    "test-native": "truffle test ./test/ClaimNative.test.js ./test/MultisendNative.test.js",
     "clean": "rm -rf build/contracts",
     "abi": "yarn clean && yarn compile && ./gen-abi.sh Tara Claim Multisend Staking StakingProxy StakingProxyAdmin",
     "format": "prettier --write contracts/**/*.sol",
