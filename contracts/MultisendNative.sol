@@ -14,17 +14,15 @@ contract MultisendNative {
 
     /**
      * @dev Transfers the tokens from the method caller to the participant.
-     * @return (lastSentIndex, totalSent) -> the index of the last sent and the total value.
      * The method doesn't restrict the sender to strictly be abel to fill all the transactions
      * as it will simply end the loop once there isn't enough balance for the next transfer.
      *
      * Emits a {TokensSent} event.
      */
-    function multisendToken(address payable[] calldata _recipients, uint256[] calldata _amounts)
-        public
-        payable
-        returns (uint8, uint256)
-    {
+    function multisendToken(
+        address payable[] calldata _recipients,
+        uint256[] calldata _amounts
+    ) public payable {
         require(_recipients.length <= 200, 'Multisend: max transfers per tx exceeded');
         require(
             _recipients.length == _amounts.length,
@@ -39,15 +37,14 @@ contract MultisendNative {
                 _recipients[i].transfer(_amounts[i]);
                 total = total + _amounts[i];
             } else {
-                if (msg.value > total) {
-                    payable(msg.sender).transfer(msg.value - total);
-                    emit SentBack(msg.value - total);
-                }
                 break;
             }
         }
+        if (msg.value > total) {
+            payable(msg.sender).transfer(msg.value - total);
+            emit SentBack(msg.value - total);
+        }
         emit TokensSent(i, total);
-        return (i, total);
     }
 
     /**

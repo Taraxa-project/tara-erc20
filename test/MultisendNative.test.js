@@ -150,6 +150,7 @@ contract('Multisend', (accounts) => {
   it('transfers tokens if inputs are valid until value runs out - then sends back remaining balance', async function () {
     let recipients = [];
     let amounts = [];
+
     for (let i = 0; i < 10; i++) {
       const account = web3.eth.accounts.create();
       recipients.push(account.address);
