@@ -52,6 +52,7 @@ contract ClaimNative {
         bytes32 hash = _hash(_address, _value, _nonce);
 
         require(ECDSA.recover(hash, _sig) == trustedAccountAddress, 'Claim: Invalid signature');
+
         require(claimed[hash] == 0, 'Claim: Already claimed');
 
         claimed[hash] = _value;
