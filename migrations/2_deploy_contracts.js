@@ -1,6 +1,5 @@
 const Tara = artifacts.require('./Tara.sol');
 const Claim = artifacts.require('./Claim.sol');
-const ClaimNative = artifacts.require('./ClaimNative.sol');
 const Multisend = artifacts.require('./Multisend.sol');
 const Staking = artifacts.require('./Staking.sol');
 const StakingProxyAdmin = artifacts.require('./StakingProxyAdmin');
@@ -18,12 +17,6 @@ module.exports = async (deployer, network, accounts) => {
   let claim = await Claim.deployed();
 
   await token.approve(claim.address, balance);
-
-  await deployer.deploy(ClaimNative, trustedAddress, {
-    from: accounts[0],
-    value: '1000000000000000000',
-  });
-  let claimNative = await ClaimNative.deployed();
 
   await deployer.deploy(Multisend);
 
