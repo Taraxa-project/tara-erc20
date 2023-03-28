@@ -13,6 +13,7 @@ contract ClaimNative {
 
     /**
      * @dev Sets the values for {trustedAccountAddress}.
+     * The account address is used to validate claim signatures.
      *
      * This value is immutable: it can only be set once during
      * construction.
