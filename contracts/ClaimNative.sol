@@ -1,47 +1,26 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.18;
 
-import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import '@openzeppelin/contracts/utils/cryptography/ECDSA.sol';
 
 /**
- * @dev Taraxa Claim Contract
- *
- * The Claim Contract is used to distribute tokens from public sales and bounties.
- *
- * The signature contains the address of the participant, the number of tokens and
- * a nonce.
- *
- * The contract uses ecrecover to verify that the signature was created by our
- * trusted account.
- *
- * If the signature is valid, the contract will transfer the tokens from a Taraxa
- * owned wallet to the participant.
+ * @dev Taraxa Claim Contract Native Version
  */
-contract Claim {
-    IERC20 token;
-
+contract ClaimNative {
     address trustedAccountAddress;
-    address walletAddress;
 
     mapping(bytes32 => uint256) claimed;
 
     /**
-     * @dev Sets the values for {token}, {trustedAccountAddress} and
-     * {walletAddress}.
+     * @dev Sets the values for {trustedAccountAddress}.
+     * The account address is used to validate claim signatures.
      *
-     * All three of these values are immutable: they can only be set once during
+     * This value is immutable: it can only be set once during
      * construction.
+     * In addition, since we transfer native tokens here, we need to fund the contract.
      */
-    constructor(
-        address _tokenAddress,
-        address _trustedAccountAddress,
-        address _walletAddress
-    ) {
-        token = IERC20(_tokenAddress);
-
+    constructor(address _trustedAccountAddress) payable {
         trustedAccountAddress = _trustedAccountAddress;
-        walletAddress = _walletAddress;
     }
 
     /**
@@ -65,7 +44,7 @@ contract Claim {
      * Emits a {Claimed} event.
      */
     function claim(
-        address _address,
+        address payable _address,
         uint256 _value,
         uint256 _nonce,
         bytes memory _sig
@@ -73,10 +52,11 @@ contract Claim {
         bytes32 hash = _hash(_address, _value, _nonce);
 
         require(ECDSA.recover(hash, _sig) == trustedAccountAddress, 'Claim: Invalid signature');
+
         require(claimed[hash] == 0, 'Claim: Already claimed');
 
         claimed[hash] = _value;
-        token.transferFrom(walletAddress, _address, _value);
+        _address.transfer(_value);
 
         emit Claimed(_address, _nonce, _value);
     }

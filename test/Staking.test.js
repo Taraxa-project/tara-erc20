@@ -107,7 +107,7 @@ contract('Staking', (accounts) => {
       await this.token.transfer(userAddress, 1, { from: ownerAddress });
       await truffleAssert.reverts(
         this.contract.stake(1, { from: userAddress }),
-        'ERC20: transfer amount exceeds allowance'
+        'ERC20: insufficient allowance'
       );
     });
     it('can stake multiple times', async () => {

@@ -1,7 +1,9 @@
+const { web3 } = require('@openzeppelin/test-helpers/src/setup');
+
 const Multisend = artifacts.require('./Multisend.sol'),
   Tara = artifacts.require('./Tara.sol'),
   BigNumber = web3.BigNumber,
-  { BN, expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
+  { expectEvent, expectRevert } = require('@openzeppelin/test-helpers');
 
 require('chai').use(require('chai-as-promised')).use(require('chai-bignumber')(BigNumber)).should();
 
@@ -30,13 +32,18 @@ contract('Multisend', () => {
     for (let i = 0; i < 10; i++) {
       const recipient = recipients[i];
       const balance = await this.token.balanceOf(recipient);
-      balance.toNumber().should.be.equal(123 + i, 'Wrong recipient balace');
+      balance
+        .toString()
+        .should.be.bignumber.equal(
+          web3.utils.toBN(`${123 + i}`).toString(),
+          `Wrong recipient balace - : ${web3.utils.toBN(`${123 + i}`).toString()}`
+        );
     }
 
-    expectEvent(tx, 'TokensSent', {
-      total: new BN(total),
-      tokenAddress: this.token.address,
-    });
+    const event = tx.logs.find((log) => log.event === 'TokensSent');
+    assert.exists(event, 'TokensSent event not found');
+    event.args.total.toString().should.equal(total.toString(), 'Total value mismatch');
+    event.args.tokenAddress.should.equal(this.token.address, 'Token address mismatch');
   });
 
   it('throws if number of recipients exceeds max number of txs', async function () {
@@ -68,7 +75,7 @@ contract('Multisend', () => {
 
     await expectRevert(
       this.contract.multisendToken(this.token.address, recipients, amounts),
-      'Multisend: contributors and balances have different sizes.'
+      'VM Exception while processing transaction: revert Multisend: contributors and balances have different sizes'
     );
   });
 });

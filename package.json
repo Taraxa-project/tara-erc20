@@ -27,9 +27,10 @@
     "migrate": "truffle migrate",
     "console": "truffle console",
     "release": "truffle migrate --network mainnet",
-    "test": "truffle test",
+    "test-eth": "truffle test test/Claim.test.js test/Multisend.test.js test/Staking.test.js",
+    "test-native": "truffle test ./test/ClaimNative.test.js",
     "clean": "rm -rf build/contracts",
-    "abi": "yarn clean && yarn compile && ./gen-abi.sh Tara Claim Multisend Staking StakingProxy StakingProxyAdmin",
+    "abi": "yarn clean && yarn compile && ./gen-abi.sh Tara Claim ClaimNative Multisend Staking StakingProxy StakingProxyAdmin",
     "format": "prettier --write contracts/**/*.sol",
     "flatten-multisend": "truffle-flattener contracts/Multisend.sol > Multisend_flat.sol",
     "flatten-claim": "truffle-flattener contracts/Claim.sol > Claim_flat.sol",
@@ -38,26 +39,27 @@
     "flatten-staking-proxy-admin": "truffle-flattener contracts/StakingProxyAdmin.sol > StakingProxyAdmin_flat.sol",
     "flatten": "truffle-flattener contracts/Tara.sol > Tara_flat.sol",
     "coverage": "truffle run coverage --file='./test/*.js'",
-    "testrpc": "ganache-cli -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d"
+    "testrpc-eth": "ganache-cli --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843",
+    "testrpc-taraxa": "ganache-cli --fork https://rpc.devnet.taraxa.io --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "3.4.0-solc-0.7",
-    "@openzeppelin/test-helpers": "^0.5.12",
-    "@truffle/hdwallet-provider": "^1.2.2",
-    "dotenv": "^8.2.0"
+    "@openzeppelin/contracts": "4.8.2",
+    "@openzeppelin/test-helpers": "0.5.16",
+    "@truffle/hdwallet-provider": "2.1.9",
+    "dotenv": "16.0.3"
   },
   "devDependencies": {
-    "chai": "^4.3.0",
+    "chai": "4.3.7",
     "chai-as-promised": "^7.1.1",
-    "chai-bignumber": "^3.0.0",
+    "chai-bignumber": "^3.1.0",
     "ethereumjs-abi": "^0.6.8",
-    "ethereumjs-util": "^7.0.8",
+    "ethereumjs-util": "7.1.5",
     "ganache-cli": "^6.12.2",
     "prettier": "^2.2.1",
     "prettier-plugin-solidity": "^1.0.0-beta.5",
     "solidity-coverage": "^0.7.15",
-    "truffle": "^5.1.67",
+    "truffle": "^5.8.1",
     "truffle-assertions": "^0.9.2",
-    "truffle-flattener": "1.5.0"
+    "truffle-flattener": "1.6.0"
   }
 }

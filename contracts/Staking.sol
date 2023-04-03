@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
+pragma solidity 0.8.18;
 
-pragma solidity 0.7.6;
-
-import '@openzeppelin/contracts/proxy/Initializable.sol';
+import '@openzeppelin/contracts/proxy/utils/Initializable.sol';
 import '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import '@openzeppelin/contracts/math/SafeMath.sol';
 
 /**
  * @dev Taraxa Staking Contract
@@ -17,8 +15,6 @@ import '@openzeppelin/contracts/math/SafeMath.sol';
  */
 
 contract Staking is Initializable {
-    using SafeMath for uint256;
-
     IERC20 token;
     address private owner;
     uint256 public lockingPeriod;
@@ -74,11 +70,11 @@ contract Staking is Initializable {
         require(_amount > 0, 'Staking: Amount cannot be zero');
 
         uint256 startTime = block.timestamp;
-        uint256 endTime = block.timestamp.add(lockingPeriod);
+        uint256 endTime = block.timestamp + lockingPeriod;
 
         Stake storage currentStake = stakes[msg.sender];
         if (currentStake.startTime > 0) {
-            currentStake.amount = currentStake.amount.add(_amount);
+            currentStake.amount = currentStake.amount + _amount;
             currentStake.endTime = endTime;
             startTime = currentStake.startTime;
         } else {
