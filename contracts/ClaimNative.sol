@@ -12,6 +12,11 @@ contract ClaimNative {
     mapping(bytes32 => uint256) claimed;
 
     /**
+     * @dev fallback receiver
+     */
+    receive() external payable {}
+
+    /**
      * @dev Sets the values for {trustedAccountAddress}.
      * The account address is used to validate claim signatures.
      *
