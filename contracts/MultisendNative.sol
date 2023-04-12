@@ -8,11 +8,6 @@ pragma solidity 0.8.18;
  */
 contract MultisendNative {
     /**
-     * @dev fallback receiver
-     */
-    receive() external payable {}
-
-    /**
      * @dev Transfers the tokens from the method caller to the participant.
      * The method doesn't restrict the sender to strictly be abel to fill all the transactions
      * as it will simply end the loop once there isn't enough balance for the next transfer.
