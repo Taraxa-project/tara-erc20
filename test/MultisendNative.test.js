@@ -42,8 +42,7 @@ contract('Multisend', (accounts) => {
 
     const event = tx.logs.find((log) => log.event === 'TokensSent');
     assert.exists(event, 'TokensSent event not found');
-    event.args.total.toString().should.equal(total.toString(), 'Total value mismatch');
-    event.args.lastSentIndex.toString().should.equal('10', 'Total value mismatch');
+    event.args.amount.toString().should.equal('123', 'Total value mismatch');
   });
 
   it('throws if value doesnt cover first tx', async function () {
@@ -111,43 +110,7 @@ contract('Multisend', (accounts) => {
     );
   });
 
-  it('transfers tokens if inputs are valid until value runs out', async function () {
-    let recipients = [];
-    let amounts = [];
-    for (let i = 0; i < 10; i++) {
-      const account = web3.eth.accounts.create();
-      recipients.push(account.address);
-      amounts.push(123 + i);
-    }
-
-    const total = amounts.reduce((a, b) => {
-      return a + b;
-    }, 0);
-
-    const totalWithoutLast = total - amounts[amounts.length - 1];
-    const tx = await this.contract.multisendToken(recipients, amounts, {
-      from: accounts[3],
-      value: totalWithoutLast,
-    });
-
-    for (let i = 0; i < 9; i++) {
-      const recipient = recipients[i];
-      const balance = await web3.eth.getBalance(recipient);
-      balance
-        .toString()
-        .should.be.bignumber.equal(
-          web3.utils.toBN(`${123 + i}`).toString(),
-          `Wrong recipient balace - : ${web3.utils.toBN(`${123 + i}`).toString()}`
-        );
-    }
-
-    const event = tx.logs.find((log) => log.event === 'TokensSent');
-    assert.exists(event, 'TokensSent event not found');
-    event.args.total.toString().should.equal(totalWithoutLast.toString(), 'Total value mismatch');
-    event.args.lastSentIndex.toString().should.equal('9', 'Total value mismatch');
-  });
-
-  it('transfers tokens if inputs are valid until value runs out - then sends back remaining balance', async function () {
+  it('fails to transfers tokens if value runs out', async function () {
     let recipients = [];
     let amounts = [];
 
@@ -163,10 +126,35 @@ contract('Multisend', (accounts) => {
 
     const totalWithoutLastPlusSome =
       total - amounts[amounts.length - 1] + amounts[amounts.length - 1] / 2;
-    const totalWithoutLast = total - amounts[amounts.length - 1];
-    const difference = totalWithoutLastPlusSome - totalWithoutLast;
+
+    await expectRevert(
+      this.contract.multisendToken(recipients, amounts, {
+        from: accounts[3],
+        value: totalWithoutLastPlusSome,
+      }),
+      'VM Exception while processing transaction: revert'
+    );
+  });
+
+  it('Returns the excess amount if more sent than necessary', async function () {
+    let recipients = [];
+    let amounts = [];
+
+    for (let i = 0; i < 10; i++) {
+      const account = web3.eth.accounts.create();
+      recipients.push(account.address);
+      amounts.push(123 + i);
+    }
+
+    const total = amounts.reduce((a, b) => {
+      return a + b;
+    }, 0);
+
+    const some = amounts[amounts.length - 1] / 2;
+    const totalWithoutLastPlusSome = total + some;
+
     const tx = await this.contract.multisendToken(recipients, amounts, {
-      from: accounts[3],
+      from: accounts[1],
       value: totalWithoutLastPlusSome,
     });
 
@@ -181,15 +169,8 @@ contract('Multisend', (accounts) => {
         );
     }
 
-    const event = tx.logs.find((log) => log.event === 'TokensSent');
-    assert.exists(event, 'TokensSent event not found');
-    event.args.total.toString().should.equal(totalWithoutLast.toString(), 'Total value mismatch');
-    event.args.lastSentIndex.toString().should.equal('9', 'Total value mismatch');
-
     const eventSentBack = tx.logs.find((log) => log.event === 'SentBack');
     assert.exists(eventSentBack, 'SentBack event not found');
-    eventSentBack.args.amount
-      .toString()
-      .should.equal(difference.toString(), 'Sent back value mismatch');
+    eventSentBack.args.amount.toString().should.equal(some.toString(), 'Sent back value mismatch');
   });
 });

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.18;
 
-import '@openzepppelin/contracts/security/ReentrancyGuard.sol';
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
 
 /**
  * @dev Taraxa Multisend Contract
@@ -28,29 +28,32 @@ contract MultisendNative is ReentrancyGuard {
         require(msg.value >= _amounts[0], "Multisend: Sent value doesn't cover first transaction");
 
         uint256 total = 0;
-        uint8 i = 0;
-        for (i; i < _recipients.length; ++i) {
-            if ((msg.value - total) >= _amounts[i]) {
-                _recipients[i].transfer(_amounts[i]);
-                total = total + _amounts[i];
-            } else {
-                break;
-            }
+        for (uint8 i; i < _recipients.length; ++i) {
+            _safeTransfer(_recipients[i], _amounts[i]);
+            total = total + _amounts[i];
+            emit TokensSent(_recipients[i], _amounts[i]);
         }
         if (msg.value > total) {
-            payable(msg.sender).transfer(msg.value - total);
+            _safeTransfer(msg.sender, msg.value - total);
             emit SentBack(msg.value - total);
         }
-        emit TokensSent(i, total);
     }
 
     /**
      * @dev Emitted after all the tokens have been transfered.
      */
-    event TokensSent(uint8 lastSentIndex, uint256 total);
+    event TokensSent(address recipient, uint256 amount);
 
     /**
      * @dev Emitted in case there are some tokens sent back.
      */
     event SentBack(uint256 amount);
+
+    /**
+     * @dev `_safeTransfer` is used internally to transfer funds safely.
+     */
+    function _safeTransfer(address _to, uint _amount) internal {
+        require(_to != address(0));
+        payable(_to).transfer(_amount);
+    }
 }
