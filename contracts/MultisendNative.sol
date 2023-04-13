@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity 0.8.18;
 
+import '@openzepppelin/contracts/security/ReentrancyGuard.sol';
+
 /**
  * @dev Taraxa Multisend Contract
  *
  * The Multisend Contract is used to do multiple native token transfers in the same transaction
  */
-contract MultisendNative {
+contract MultisendNative is ReentrancyGuard {
     /**
      * @dev Transfers the tokens from the method caller to the participant.
      * The method doesn't restrict the sender to strictly be abel to fill all the transactions
@@ -17,7 +19,7 @@ contract MultisendNative {
     function multisendToken(
         address payable[] calldata _recipients,
         uint256[] calldata _amounts
-    ) public payable {
+    ) public payable nonReentrant {
         require(_recipients.length <= 200, 'Multisend: max transfers per tx exceeded');
         require(
             _recipients.length == _amounts.length,
