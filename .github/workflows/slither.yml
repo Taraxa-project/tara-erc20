@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Flatten Multisend and Claim
+        run: yarn run flatten-native
       - name: Run slither
         uses: crytic/slither-action@v0.3.0
         id: slither

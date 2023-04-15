@@ -38,6 +38,7 @@
     "flatten-staking-proxy": "truffle-flattener contracts/StakingProxy.sol > StakingProxy_flat.sol",
     "flatten-staking-proxy-admin": "truffle-flattener contracts/StakingProxyAdmin.sol > StakingProxyAdmin_flat.sol",
     "flatten": "truffle-flattener contracts/Tara.sol > Tara_flat.sol",
+    "flatten-native": "mkdir contracts/flat && truffle-flattener contracts/ClaimNative.sol > contracts/flat/ClaimNative.sol && truffle-flattener contracts/MultisendNative.sol > contracts/flat/MultisendNative.sol",
     "coverage": "truffle run coverage --file='./test/*.js'",
     "testrpc-eth": "ganache-cli --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843",
     "testrpc-taraxa": "ganache-cli --fork https://rpc.devnet.taraxa.io --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843"
