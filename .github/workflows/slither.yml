@@ -5,6 +5,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install packages
+        run: yarn install
       - name: Flatten Multisend and Claim
         run: yarn run flatten-native
       - name: Run slither
@@ -15,7 +17,7 @@ jobs:
           node-version: 16
           sarif: results.sarif
           fail-on: none
-          target: 'contracts/'
+          target: 'contracts/flat/'
       - name: Upload SARIF file
         uses: github/codeql-action/upload-sarif@v2
         with:
