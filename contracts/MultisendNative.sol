@@ -28,7 +28,7 @@ contract MultisendNative is ReentrancyGuard {
         require(msg.value >= _amounts[0], "Multisend: Sent value doesn't cover first transaction");
 
         uint256 total = 0;
-        for (uint8 i; i < _recipients.length; ++i) {
+        for (uint8 i = 0; i < _recipients.length; ++i) {
             total = total + _amounts[i];
             _safeTransfer(_recipients[i], _amounts[i]);
             emit TokensSent(_recipients[i], _amounts[i]);
