@@ -9,6 +9,10 @@ jobs:
         run: yarn install
       - name: Compile contracts
         run: yarn compile
+        env:
+          MNEMONIC: "recall outdoor error city media race arrow host card steel jelly fossil"
+          TRUSTED_ACCOUNT: c8610869e5b0919f979ef25b84fcf98311e0490dcf15783703bcacb4f167b658
+          INFURA_KEY: xxx
       - name: Run echidna
         uses: crytic/echidna-action@v2
         id: echidna
