@@ -29,8 +29,8 @@ contract MultisendNative is ReentrancyGuard {
 
         uint256 total = 0;
         for (uint8 i; i < _recipients.length; ++i) {
-            _safeTransfer(_recipients[i], _amounts[i]);
             total = total + _amounts[i];
+            _safeTransfer(_recipients[i], _amounts[i]);
             emit TokensSent(_recipients[i], _amounts[i]);
         }
         if (msg.value > total) {
