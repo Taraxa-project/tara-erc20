@@ -24,7 +24,7 @@
   },
   "scripts": {
     "compile": "truffle compile",
-    "migrate": "truffle migrate",
+    "migrate": "truffle migrate --network testnet",
     "console": "truffle console",
     "release": "truffle migrate --network mainnet",
     "test-eth": "truffle test test/Claim.test.js test/Multisend.test.js test/Staking.test.js",
@@ -44,7 +44,7 @@
     "testrpc-taraxa": "ganache-cli --fork https://rpc.devnet.taraxa.io --accounts 10 -m \"$(cat .env | grep MNEMONIC= | awk -F '=' '{print $2}')\" -d -e 100 -i 843"
   },
   "dependencies": {
-    "@openzeppelin/contracts": "4.8.2",
+    "@openzeppelin/contracts": "4.8.3",
     "@openzeppelin/test-helpers": "0.5.16",
     "@truffle/hdwallet-provider": "2.1.9",
     "dotenv": "16.0.3"
